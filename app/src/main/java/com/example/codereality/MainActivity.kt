@@ -42,6 +42,184 @@ data class Topic(
     val color: Color
 )
 
+data class QuizQuestion(
+    val question: String,
+    val options: List<String>,
+    val correctIndex: Int,
+    val explanation: String
+)
+
+private val beginnerQuickQuizzes = mapOf(
+    "Variables" to listOf(
+        QuizQuestion(
+            question = "A variable can be compared to:",
+            options = listOf(
+                "A traffic light",
+                "A box where information can be stored",
+                "A road intersection",
+                "A button"
+            ),
+            correctIndex = 1,
+            explanation = "A variable can be seen as a box where information or a value can be stored."
+        ),
+        QuizQuestion(
+            question = "If a box first contains the number 10 and is then replaced with the number 25, what value is in the box?",
+            options = listOf(
+                "10",
+                "25",
+                "10 and 25",
+                "No value"
+            ),
+            correctIndex = 1,
+            explanation = "When the value is replaced, the variable contains the new value, which is 25."
+        )
+    ),
+    "Data Types" to listOf(
+        QuizQuestion(
+            question = "What does a data type describe?",
+            options = listOf(
+                "What kind of value a variable can store",
+                "How many times a loop runs",
+                "Which function is called first",
+                "How a list is sorted"
+            ),
+            correctIndex = 0,
+            explanation = "A data type describes what kind of value can be stored, such as an integer, decimal number, text, or true/false value."
+        ),
+        QuizQuestion(
+            question = "Which data type is most suitable for storing a whole number such as 25?",
+            options = listOf(
+                "String",
+                "boolean",
+                "int",
+                "double"
+            ),
+            correctIndex = 2,
+            explanation = "The int data type is used for whole numbers such as 25."
+        )
+    ),
+    "Operators and Expressions" to listOf(
+        QuizQuestion(
+            question = "What is an operator in programming?",
+            options = listOf(
+                "A symbol that performs an action such as calculation or comparison",
+                "A container that stores several values",
+                "A block of reusable instructions",
+                "A condition that repeats code"
+            ),
+            correctIndex = 0,
+            explanation = "An operator is a symbol such as +, -, *, /, ==, >, or < that performs an operation."
+        ),
+        QuizQuestion(
+            question = "In the expression 5 + 3, what is the + symbol?",
+            options = listOf(
+                "A variable",
+                "An operator",
+                "A list",
+                "A function"
+            ),
+            correctIndex = 1,
+            explanation = "The + symbol is an operator because it tells the program to add the two values."
+        )
+    ),
+    "If Statements" to listOf(
+        QuizQuestion(
+            question = "A condition works approximately like:",
+            options = listOf(
+                "A storage location",
+                "A decision based on a rule",
+                "A list",
+                "A repetition"
+            ),
+            correctIndex = 1,
+            explanation = "A condition is used to make a decision depending on whether a rule is true or false."
+        ),
+        QuizQuestion(
+            question = "A person must be at least 18 years old to enter. The person is 20 years old. What happens?",
+            options = listOf(
+                "The rule is satisfied",
+                "The rule is not satisfied",
+                "It cannot be determined",
+                "The rule is ignored"
+            ),
+            correctIndex = 0,
+            explanation = "The person is 20 years old and therefore satisfies the condition of being at least 18."
+        )
+    ),
+    "Loops" to listOf(
+        QuizQuestion(
+            question = "A loop is used when you want to:",
+            options = listOf(
+                "Store information",
+                "Repeat the same activity several times",
+                "Compare values",
+                "Create a list"
+            ),
+            correctIndex = 1,
+            explanation = "A loop is used to repeat instructions several times."
+        ),
+        QuizQuestion(
+            question = "If an activity should be repeated five times, the most appropriate thing to use is:",
+            options = listOf(
+                "A condition",
+                "A list",
+                "A loop",
+                "A variable"
+            ),
+            correctIndex = 2,
+            explanation = "A loop is designed to repeat the same activity a fixed or condition-controlled number of times."
+        )
+    ),
+    "Functions" to listOf(
+        QuizQuestion(
+            question = "Why are functions used?",
+            options = listOf(
+                "To group instructions that can be used several times",
+                "To store several values",
+                "To create loops",
+                "To compare numbers"
+            ),
+            correctIndex = 0,
+            explanation = "Functions group instructions into reusable blocks that can be called when needed."
+        ),
+        QuizQuestion(
+            question = "If the same task needs to be performed many times, it is best to:",
+            options = listOf(
+                "Rewrite everything from the beginning each time",
+                "Use a function",
+                "Create more variables",
+                "Create more lists"
+            ),
+            correctIndex = 1,
+            explanation = "A function allows the same task to be reused without rewriting the same instructions."
+        )
+    ),
+    "Lists" to listOf(
+        QuizQuestion(
+            question = "What is a list used for?",
+            options = listOf(
+                "To store several values together",
+                "To make decisions",
+                "To repeat code",
+                "To create functions"
+            ),
+            correctIndex = 0,
+            explanation = "A list is used to collect and store several values together."
+        ),
+        QuizQuestion(
+            question = "Which example is most similar to a list?",
+            options = listOf(
+                "A single phone number",
+                "A shopping list with several items",
+                "A traffic light",
+                "A button"
+            ),
+            correctIndex = 1,
+            explanation = "A shopping list contains several items collected together and is therefore similar to a list in programming."
+        )
+    )
+)
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,6 +238,7 @@ fun AppScreen() {
     var showIntro by remember { mutableStateOf(true) }
     var selectedTopic by remember { mutableStateOf<Topic?>(null) }
     var selectedPage by remember { mutableStateOf<LearningPage?>(null) }
+    var showQuiz by remember { mutableStateOf(false) }
 
     fun opensDirectly(topic: Topic): Boolean {
         return topic.title == "Variables" ||
@@ -93,14 +272,31 @@ fun AppScreen() {
             )
         }
 
+        showQuiz -> {
+            QuizScreen(
+                topic = selectedTopic!!,
+                onBackClick = {
+                    showQuiz = false
+                    if (opensDirectly(selectedTopic!!)) {
+                        selectedTopic = null
+                        selectedPage = null
+                    }
+                }
+            )
+        }
+
         selectedPage == null -> {
             PageMenuScreen(
                 topic = selectedTopic!!,
                 onPageClick = { page ->
                     selectedPage = page
                 },
+                onQuizClick = {
+                    showQuiz = true
+                },
                 onBackClick = {
                     selectedTopic = null
+                    showQuiz = false
                 }
             )
         }
@@ -223,6 +419,7 @@ fun TopicMenuScreen(
 fun PageMenuScreen(
     topic: Topic,
     onPageClick: (LearningPage) -> Unit,
+    onQuizClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     Column(
@@ -287,6 +484,16 @@ Just as people repeat tasks in daily life, programs use loops to repeat instruct
                     }
                 )
             }
+
+            if (beginnerQuickQuizzes.containsKey(topic.title)) {
+                Spacer(modifier = Modifier.height(8.dp))
+                MainButton(
+                    text = "Quick Quiz",
+                    backgroundColor = Color(0xFFFFD166),
+                    textColor = Color(0xFF1E1E1E),
+                    onClick = onQuizClick
+                )
+            }
         }
     }
 }
@@ -329,12 +536,167 @@ fun ContentScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ContentWithInlineImages(page = page)
+
+                val quizQuestions = beginnerQuickQuizzes[topic.title].orEmpty()
+                val quizShownInsideContent =
+                    topic.title == "Variables" ||
+                            topic.title == "Data Types" ||
+                            topic.title == "Operators and Expressions" ||
+                            topic.title == "Functions"
+
+                if (quizShownInsideContent && quizQuestions.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(28.dp))
+                    QuickQuiz(
+                        topicTitle = topic.title,
+                        questions = quizQuestions,
+                        accentColor = topic.color
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun QuizScreen(
+    topic: Topic,
+    onBackClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(topic.color)
+            .padding(16.dp)
+    ) {
+        BackButton(onClick = onBackClick)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxSize(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF1E1E1E)
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                QuickQuiz(
+                    topicTitle = topic.title,
+                    questions = beginnerQuickQuizzes[topic.title].orEmpty(),
+                    accentColor = topic.color
+                )
             }
         }
     }
 }
 
 
+@Composable
+fun QuickQuiz(
+    topicTitle: String,
+    questions: List<QuizQuestion>,
+    accentColor: Color
+) {
+    var selectedAnswers by remember(topicTitle) {
+        mutableStateOf<Map<Int, Int>>(emptyMap())
+    }
+
+    HorizontalDivider(color = Color(0xFF555555))
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = "Quick Quiz – ${quizDisplayName(topicTitle)}",
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+        color = accentColor
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Text(
+        text = "Check your understanding. You will receive immediate feedback after each answer.",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color.White
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    questions.forEachIndexed { questionIndex, quizQuestion ->
+        Text(
+            text = "Question ${questionIndex + 1}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = quizQuestion.question,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        quizQuestion.options.forEachIndexed { optionIndex, option ->
+            val isSelected = selectedAnswers[questionIndex] == optionIndex
+
+            OutlinedButton(
+                onClick = {
+                    selectedAnswers = selectedAnswers + (questionIndex to optionIndex)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = if (isSelected) accentColor else Color.White
+                )
+            ) {
+                Text(
+                    text = "${('a'.code + optionIndex).toChar()}) $option"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+
+        val selectedIndex = selectedAnswers[questionIndex]
+        if (selectedIndex != null) {
+            val isCorrect = selectedIndex == quizQuestion.correctIndex
+
+            Text(
+                text = if (isCorrect) {
+                    "Correct: ${quizQuestion.explanation}"
+                } else {
+                    "Not quite. The correct answer is ${('a'.code + quizQuestion.correctIndex).toChar()}) ${quizQuestion.options[quizQuestion.correctIndex]}. ${quizQuestion.explanation}"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White
+            )
+        }
+
+        if (questionIndex < questions.lastIndex) {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+fun quizDisplayName(topicTitle: String): String {
+    return when (topicTitle) {
+        "If Statements" -> "Conditions"
+        "Variables" -> "Variables"
+        "Data Types" -> "Data Types"
+        "Operators and Expressions" -> "Operators and Expressions"
+        "Loops" -> "Loops"
+        "Functions" -> "Functions"
+        "Lists" -> "Lists"
+        else -> topicTitle
+    }
+}
 
 @Composable
 fun ContentWithInlineImages(
@@ -2203,8 +2565,13 @@ else{
 Short Summary
 
 If statements allow a program to choose between actions. The program checks a condition and follows one path if it is true and another path if it is false.
-"""
-        ),
+""",      imagePlacements = listOf(
+                    InlineImage(
+                        afterText = "Security guard analogy",
+                        imageRes = R.drawable.if_else_security_guard
+                        )
+                    )
+               ),
 
         LearningPage(
             title = "Nested If",
@@ -2254,7 +2621,12 @@ else{
 Short Summary
 
 Nested if statements are decisions inside other decisions. They are useful when a program must check one condition first and then check another condition inside it.
-"""
+""",     imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Car speed robot analogy",
+                    imageRes = R.drawable.nested_if_car
+                )
+            )
         ),
 
         LearningPage(
@@ -2266,29 +2638,26 @@ Sometimes programs repeat the same task multiple times.
 
 A for loop is used when we know exactly how many repetitions are needed.
 
+Imagine: Running on a track
 
-Teacher attendance analogy
+A runner completes one lap at a time.
 
-A teacher has 5 students.
+If the runner needs to complete 5 laps, the same action is repeated 5 times.
 
-The teacher checks every student one by one.
+for(int lap = 1; lap <= 5; lap++){
+    // Runner starts with lap 1
 
-
-for(int i = 1; i <= 5; i++){
-    // Teacher starts with student 1
-
-    System.out.println("Checking student " + i);
-    // Teacher checks current student
+    System.out.println("Running lap " + lap);
+    // Runner completes current lap
 }
-        
 
 What happened?
 
-i = 1 → start at student 1
+lap = 1 → start at lap 1
 
-i <= 5 → stop after student 5
+lap <= 5 → stop after lap 5
 
-i++ → move to next student
+lap++ → move to the next lap
 
 Short Summary
 
@@ -2309,34 +2678,27 @@ While loop
 
 A while loop repeats as long as a condition remains true.
 
+Imagine: Filling a glass with water
 
-Imagine: Security guard line 
+You keep pouring water while the glass is not full.
 
-People keep arriving at a concert.
+As long as there is space → continue pouring.
 
-The guard keeps checking tickets
-while people still remain in line.
+When the glass is full → stop.
 
+int waterLevel = 0;
 
-int people = 5;
-// Five people waiting
+while(waterLevel < 5){
+    System.out.println("Pouring water");
 
-while(people > 0){
-    // People still waiting
-
-    System.out.println("Checking ticket");
-    // Guard checks one ticket
-
-    people--;
-    // One person leaves line
+    waterLevel++;
 }
-
 
 What happened?
 
-As long as people remain → continue
+waterLevel < 5 → continue pouring
 
-No people left → stop
+waterLevel = 5 → the glass is full, stop
 
 Short Summary
 
@@ -2345,7 +2707,7 @@ A while loop repeats as long as a condition is true. It is useful when the progr
             imagePlacements = listOf(
                 InlineImage(
                     afterText = "A while loop repeats as long as a condition remains true.",
-                    imageRes = R.drawable.loop_tvattmaskin
+                    imageRes = R.drawable.while_loop_water_glass
                 )
             )
         ),
@@ -2381,8 +2743,14 @@ while(tries <= 3);
 Short Summary
 
 A do while loop always runs at least once before checking the condition. It is useful when an action must happen before the program decides whether to continue.
-"""
+""", imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Restaurant tasting.",
+                    imageRes = R.drawable.do_while_chef
+                )
+            )
         ),
+
 
         LearningPage(
             title = "Nested Loops",
@@ -2427,7 +2795,12 @@ Inner loop = students
 Short Summary
 
 Nested loops are loops inside other loops. They are useful when a program must repeat actions across rows, groups, or multiple levels.
-"""
+""",        imagePlacements = listOf(
+                InlineImage(
+                    afterText = "A loop inside another loop.",
+                    imageRes = R.drawable.nested_loops_classroom
+                    )
+            )
         )
     )
 
@@ -3814,8 +4187,14 @@ Birth dates
 Short Summary
 
 A tuple groups values together in a fixed structure. It is useful when values belong together and should not be changed.
-"""
+""",           imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Tuple → Sealed package",
+                    imageRes = R.drawable.tuple_sealed_package
+                )
+            )
         ),
+
         LearningPage(
             title = "Set",
             content = """
@@ -3842,7 +4221,12 @@ Unique visitors
 Short Summary
 
 A set stores unique values. It is useful when duplicates should be avoided and membership checking is important.
-"""
+""",        imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Set → Security club guest list",
+                    imageRes = R.drawable.set_security_guest_list
+                )
+            )
         ),
         LearningPage(
             title = "Dictionary",
@@ -3867,8 +4251,14 @@ Product → price
 Short Summary
 
 A dictionary stores data as key-value pairs. It is useful when a program needs to find a value using a meaningful name or key.
-"""
+""",        imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Dictionary → Real-world contact book",
+                    imageRes = R.drawable.dictionary_contact_book
+                )
+            )
         )
+
     )
 
     private val codeProgramPages = listOf(
@@ -5972,7 +6362,12 @@ The function makeCoffee() can be called whenever coffee is needed.
 Short Summary
 
 Functions group instructions into reusable blocks. They help programmers avoid repetition and organize code into smaller tasks.
-"""
+""",           imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Think of a coffee machine.",
+                    imageRes = R.drawable.function_coffee_machine
+                )
+            )
         )
     )
 
@@ -6078,8 +6473,14 @@ Just as a recipe helps a chef make a meal and a GPS helps a driver reach a desti
 Short Summary
 
 Problem solving is the process of understanding a problem, creating a plan, and implementing a solution. Programming concepts work together to solve real-world challenges.
-"""
+""",            imagePlacements = listOf(
+                InlineImage(
+                    afterText = "Think of following a recipe when cooking.",
+                    imageRes = R.drawable.basic_problem_solving_recipe
+                )
+            )
         )
+
     )
 
     private val appendixPages =
@@ -6101,4 +6502,3 @@ Problem solving is the process of understanding a problem, creating a plan, and 
         Topic(title = "Appendix", pages = appendixPages, color = Color(0xFF555555))
     )
 }
-
